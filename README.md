@@ -1,6 +1,13 @@
-# Digital Bit Solutions (DBS) Landing & CMS
+# Digital Bit Solutions (DBS) - Landing & Premium CMS
 
-![DBS Landing](/docs/assets/landing-desktop.png)
+> **Plataforma modular de alto rendimiento para agencias de software y negocios inteligentes.**
+
+![DBS Landing](docs/assets/landing-desktop.png)
+
+### 🏷️ Tags
+`Next.js 16` `React 19` `Tailwind CSS v4` `Supabase` `GSAP` `Groq AI` `i18n` `Email Automation`
+
+---
 
 Una plataforma modular y premium para Digital Bit Solutions, diseñada con un enfoque en **rendimiento**, **automatización** y **criterio técnico**. Este repositorio combina una landing page pública de alto impacto con un mini CMS interno para la gestión de contenidos, leads e integraciones con IA.
 
@@ -22,13 +29,13 @@ Una plataforma modular y premium para Digital Bit Solutions, diseñada con un en
 ### Landing Page
 | Desktop View | Mobile View |
 | :--- | :--- |
-| ![Desktop](/docs/assets/landing-desktop.png) | ![Mobile](/docs/assets/landing-mobile.png) |
+| ![Desktop](docs/assets/landing-desktop.png) | ![Mobile](docs/assets/landing-mobile.png) |
 
 ### Servicios y Contacto
-![Services](/docs/assets/landing-services.png)
+![Services](docs/assets/landing-services.png)
 
 ### Dashboard Interno (CMS)
-![Dashboard Overview](/docs/assets/dashboard-overview.png)
+![Dashboard Overview](docs/assets/dashboard-overview.png)
 
 > [!TIP]
 > El dashboard permite una gestión integral de la landing sin tocar código: desde la activación de idiomas hasta el reenvío manual de correos a leads.
