@@ -1,0 +1,158 @@
+insert into public.site_settings (
+  id,
+  site_name,
+  hero_badge,
+  hero_title,
+  hero_subtitle,
+  hero_primary_cta,
+  hero_secondary_cta,
+  default_locale,
+  enabled_locales,
+  groq_translation_model,
+  lead_notification_enabled,
+  autoresponder_enabled,
+  internal_notification_subject,
+  autoresponder_subject,
+  autoresponder_body,
+  resend_from_name,
+  resend_from_email,
+  seo_title,
+  seo_description,
+  seo_keywords,
+  seo_og_image_url,
+  seo_canonical_url,
+  contact_email,
+  contact_phone_es,
+  contact_phone_pe,
+  location_barcelona,
+  location_peru,
+  footer_text,
+  translations
+)
+values (
+  1,
+  'Digital Bit Solutions',
+  'Liderazgo Tecnico en PHP & WP',
+  'Software a medida y producto web para negocios que necesitan criterio tecnico.',
+  'DBS disena, construye y mantiene landing pages, apps internas, automatizaciones e integraciones con IA para equipos pequenos que quieren moverse rapido sin sacrificar calidad.',
+  'Solicitar propuesta',
+  'Ver proyectos',
+  'es',
+  array['es', 'en', 'ca', 'qu'],
+  'openai/gpt-oss-120b',
+  true,
+  true,
+  'Nuevo lead recibido desde la landing de DBS',
+  'Hemos recibido tu mensaje',
+  'Gracias por contactar con Digital Bit Solutions.\n\nHe recibido tu mensaje y te respondere personalmente en un plazo maximo de 24 horas con viabilidad tecnica y siguientes pasos.\n\nSi necesitas anadir algun detalle urgente, puedes responder a este mismo correo.\n\nUn saludo,\nDigital Bit Solutions',
+  'Digital Bit Solutions',
+  'noreply@digitalbitsolutions.com',
+  'Software a medida y automatizacion para negocios | Digital Bit Solutions',
+  'Digital Bit Solutions disena software a medida, landings serias, automatizaciones e IA aplicada para negocios que necesitan criterio tecnico y una ejecucion fiable.',
+  array['software a medida', 'desarrollo web', 'automatizacion', 'IA aplicada', 'next.js', 'supabase'],
+  'https://digitalbitsolutions.com/founder_photo.png',
+  'https://digitalbitsolutions.com',
+  'hola@digitalbitsolutions.com',
+  '+34 600 000 000',
+  '+51 900 000 000',
+  'Barcelona, Espana',
+  'Peru',
+  'Digital Bit Solutions. Desarrollo web, software a medida y automatizacion con IA.',
+  '{}'::jsonb
+)
+on conflict (id) do update set
+  site_name = excluded.site_name,
+  hero_badge = excluded.hero_badge,
+  hero_title = excluded.hero_title,
+  hero_subtitle = excluded.hero_subtitle,
+  hero_primary_cta = excluded.hero_primary_cta,
+  hero_secondary_cta = excluded.hero_secondary_cta,
+  default_locale = excluded.default_locale,
+  enabled_locales = excluded.enabled_locales,
+  groq_translation_model = excluded.groq_translation_model,
+  lead_notification_enabled = excluded.lead_notification_enabled,
+  autoresponder_enabled = excluded.autoresponder_enabled,
+  internal_notification_subject = excluded.internal_notification_subject,
+  autoresponder_subject = excluded.autoresponder_subject,
+  autoresponder_body = excluded.autoresponder_body,
+  resend_from_name = excluded.resend_from_name,
+  resend_from_email = excluded.resend_from_email,
+  seo_title = excluded.seo_title,
+  seo_description = excluded.seo_description,
+  seo_keywords = excluded.seo_keywords,
+  seo_og_image_url = excluded.seo_og_image_url,
+  seo_canonical_url = excluded.seo_canonical_url,
+  contact_email = excluded.contact_email,
+  contact_phone_es = excluded.contact_phone_es,
+  contact_phone_pe = excluded.contact_phone_pe,
+  location_barcelona = excluded.location_barcelona,
+  location_peru = excluded.location_peru,
+  footer_text = excluded.footer_text,
+  translations = excluded.translations;
+
+insert into public.services (title, slug, description, icon, order_index, active, translations)
+values
+  ('Landing pages de alto rendimiento', 'landing-pages', 'Sitios rapidos, bien medidos y preparados para captar leads o validar propuestas con una imagen seria.', 'globe', 1, true, '{}'::jsonb),
+  ('Software interno', 'custom-software', 'Herramientas operativas, paneles y flujos internos disenados alrededor del proceso real del negocio.', 'code-2', 2, true, '{}'::jsonb),
+  ('Automatizacion e IA aplicada', 'ai-automation', 'Automatizaciones con APIs, agentes y modelos para reducir trabajo manual y acelerar decisiones.', 'bot', 3, true, '{}'::jsonb),
+  ('MVPs y evolucion de producto', 'mvp-development', 'Primera version util, despliegue estable y capacidad para iterar sin rehacer la base cada mes.', 'rocket', 4, true, '{}'::jsonb)
+on conflict (slug) do update set
+  title = excluded.title,
+  description = excluded.description,
+  icon = excluded.icon,
+  order_index = excluded.order_index,
+  active = excluded.active,
+  translations = excluded.translations;
+
+insert into public.projects (
+  title,
+  slug,
+  short_description,
+  image_url,
+  stack,
+  featured,
+  order_index,
+  tags,
+  translations
+)
+values
+  ('Ops Console', 'ops-console', 'Panel interno para seguimiento de operaciones, incidencias y tiempos de respuesta con reporting ejecutivo.', 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80', array['Next.js', 'Supabase', 'TypeScript'], true, 1, array['Internal Tool', 'Dashboard'], '{}'::jsonb),
+  ('Sales Funnel Studio', 'sales-funnel-studio', 'Landing + CRM ligero + automatizaciones para captacion comercial en servicios B2B de ticket medio-alto.', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80', array['Next.js', 'PostgreSQL', 'Resend'], true, 2, array['Marketing', 'Automation'], '{}'::jsonb),
+  ('Support Flow', 'support-flow', 'Sistema operativo pequeno para soporte tecnico con tickets, SLA y visibilidad de cuellos de botella.', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80', array['React', 'Node.js', 'PostgreSQL'], false, 3, array['Support', 'SaaS'], '{}'::jsonb)
+on conflict (slug) do update set
+  title = excluded.title,
+  short_description = excluded.short_description,
+  image_url = excluded.image_url,
+  stack = excluded.stack,
+  featured = excluded.featured,
+  order_index = excluded.order_index,
+  tags = excluded.tags,
+  translations = excluded.translations;
+
+insert into public.leads (
+  name,
+  email,
+  company,
+  message,
+  locale,
+  source,
+  status,
+  notification_sent_at,
+  autoresponder_sent_at,
+  followup_reminder_sent_at,
+  email_last_error,
+  metadata
+)
+select *
+from (
+  values
+    ('Sergio Molina', 'sergio.molina@northfield.example', 'Northfield Studio', 'Necesitamos rehacer la landing, centralizar formularios y dejar una base limpia para automatizaciones comerciales.', 'es', 'seed', 'new'::public.lead_status, timezone('utc', now()) - interval '1 hour', timezone('utc', now()) - interval '1 hour', null, null, '{"budget":"5k-10k","project_type":"landing-cms"}'::jsonb),
+    ('Lucia Perez', 'lucia.perez@atelier.example', null, 'Quiero una web mas seria para captar clientes B2B y un panel pequeno para editar servicios y casos sin tocar codigo.', 'en', 'seed', 'contacted'::public.lead_status, timezone('utc', now()) - interval '2 hours', null, null, 'Autorespuesta pendiente por revisar la configuracion del remitente.', '{"budget":"3k-5k","project_type":"rebrand"}'::jsonb),
+    ('Martin Salas', 'martin.salas@opsboard.example', 'Opsboard', 'Buscamos un dashboard interno con autenticacion, gestion de proyectos y un flujo estable para leads entrantes. Tambien necesitamos que el contenido de la landing pueda evolucionar sin rehacer cada bloque en cada sprint.', 'ca', 'seed', 'closed'::public.lead_status, timezone('utc', now()) - interval '2 day', timezone('utc', now()) - interval '2 day', timezone('utc', now()) - interval '1 day', null, '{"budget":"10k+","project_type":"internal-tool"}'::jsonb),
+    ('Aitana Ruiz', 'aitana.ruiz@solventa.example', 'Solventa', 'El objetivo es validar una nueva propuesta comercial con una landing premium, casos destacados y automatizaciones ligeras para no perder contexto de los contactos.', 'qu', 'seed', 'new'::public.lead_status, null, null, null, null, '{"budget":"5k-10k","project_type":"growth-site"}'::jsonb)
+) as demo_data(name, email, company, message, locale, source, status, notification_sent_at, autoresponder_sent_at, followup_reminder_sent_at, email_last_error, metadata)
+where not exists (
+  select 1
+  from public.leads
+  where public.leads.email = demo_data.email
+);
