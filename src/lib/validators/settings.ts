@@ -28,6 +28,33 @@ export const siteSettingsSchema = z
       .max(320, "Maximo 320 caracteres."),
     hero_primary_cta: z.string().trim().min(2, "El CTA principal es obligatorio.").max(40, "Maximo 40 caracteres."),
     hero_secondary_cta: z.string().trim().min(2, "El CTA secundario es obligatorio.").max(40, "Maximo 40 caracteres."),
+    hero_available_badge: z
+      .string()
+      .trim()
+      .min(3, "El badge de disponibilidad necesita algo mas de claridad.")
+      .max(60, "Maximo 60 caracteres."),
+    hero_image_url: optionalUrl,
+    hero_panel_label: z
+      .string()
+      .trim()
+      .min(3, "La etiqueta del panel necesita algo mas de claridad.")
+      .max(60, "Maximo 60 caracteres."),
+    hero_panel_title: z
+      .string()
+      .trim()
+      .min(8, "El titular del panel lateral es demasiado corto.")
+      .max(120, "Maximo 120 caracteres."),
+    hero_stat_years_value: z.string().trim().min(1, "Indica un valor para la experiencia.").max(12, "Maximo 12 caracteres."),
+    hero_stat_years_label: z.string().trim().min(2, "Aclara la metrica de experiencia.").max(40, "Maximo 40 caracteres."),
+    hero_stat_projects_value: z.string().trim().min(1, "Indica un valor para los proyectos.").max(12, "Maximo 12 caracteres."),
+    hero_stat_projects_label: z.string().trim().min(2, "Aclara la metrica de proyectos.").max(40, "Maximo 40 caracteres."),
+    hero_stat_ops_value: z.string().trim().min(1, "Indica un valor para la operativa.").max(12, "Maximo 12 caracteres."),
+    hero_stat_ops_label: z.string().trim().min(2, "Aclara la metrica operativa.").max(40, "Maximo 40 caracteres."),
+    hero_delivery_label: z
+      .string()
+      .trim()
+      .min(2, "La etiqueta final del hero es demasiado corta.")
+      .max(50, "Maximo 50 caracteres."),
     default_locale: localeSchema,
     enabled_locales: z.array(localeSchema).min(1, "Activa al menos un idioma."),
     groq_translation_model: groqModelSchema,
@@ -77,6 +104,15 @@ export const siteSettingsSchema = z
       .min(2, "El remitente necesita un nombre valido.")
       .max(80, "Maximo 80 caracteres."),
     resend_from_email: z.string().trim().email("Introduce un email remitente valido."),
+    header_nav_services: z.string().trim().min(2).max(40),
+    header_nav_cases: z.string().trim().min(2).max(40),
+    header_nav_process: z.string().trim().min(2).max(40),
+    header_nav_contact: z.string().trim().min(2).max(40),
+    header_access: z.string().trim().min(2).max(40),
+    footer_directory_label: z.string().trim().min(2).max(40),
+    footer_contact_label: z.string().trim().min(2).max(40),
+    footer_tagline: z.string().trim().min(10).max(180),
+    ticker_label: z.string().trim().min(5).max(120),
   })
   .superRefine((values, ctx) => {
     if (!values.enabled_locales.includes(values.default_locale)) {

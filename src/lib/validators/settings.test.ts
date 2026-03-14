@@ -5,11 +5,22 @@ import { siteSettingsSchema } from "@/lib/validators/settings";
 const validSettings = {
   site_name: "Digital Bit Solutions",
   hero_badge: "Liderazgo Tecnico en PHP & WP",
+  hero_available_badge: "Disponible para nuevos proyectos",
   hero_title: "Software a medida para negocios que quieren moverse rapido.",
   hero_subtitle:
     "Disenamos, construimos y mantenemos landings, paneles y automatizaciones con una base clara.",
   hero_primary_cta: "Solicitar propuesta",
   hero_secondary_cta: "Ver casos",
+  hero_image_url: "https://digitalbitsolutions.com/founder.jpg",
+  hero_panel_label: "Liderazgo tecnico senior",
+  hero_panel_title: "PHP, WordPress, producto web e integracion moderna.",
+  hero_stat_years_value: "20+",
+  hero_stat_years_label: "anos",
+  hero_stat_projects_value: "12+",
+  hero_stat_projects_label: "proyectos",
+  hero_stat_ops_value: "IA",
+  hero_stat_ops_label: "ops",
+  hero_delivery_label: "Delivery premium",
   default_locale: "es",
   enabled_locales: ["es", "en", "ca", "qu"],
   groq_translation_model: "openai/gpt-oss-120b",
@@ -62,6 +73,15 @@ describe("siteSettingsSchema", () => {
       siteSettingsSchema.safeParse({
         ...validSettings,
         hero_badge: "a".repeat(61),
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects an invalid hero image URL", () => {
+    expect(
+      siteSettingsSchema.safeParse({
+        ...validSettings,
+        hero_image_url: "foto-local-sin-ruta",
       }).success,
     ).toBe(false);
   });

@@ -19,8 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { marketingTranslationGroups } from "@/lib/data/marketing-copy";
 import { groqTranslationModels } from "@/lib/groq";
-import { formatSeoKeywordsInput } from "@/lib/seo";
 import { localeOptions } from "@/lib/i18n";
+import { formatSeoKeywordsInput } from "@/lib/seo";
 import type { SiteSettings } from "@/lib/supabase/database.types";
 import { siteSettingsSchema, type SiteSettingsValues } from "@/lib/validators/settings";
 
@@ -44,10 +44,21 @@ export default function SettingsForm({
     defaultValues: {
       site_name: settings.site_name,
       hero_badge: settings.hero_badge,
+      hero_available_badge: settings.hero_available_badge,
       hero_title: settings.hero_title,
       hero_subtitle: settings.hero_subtitle,
       hero_primary_cta: settings.hero_primary_cta,
       hero_secondary_cta: settings.hero_secondary_cta,
+      hero_image_url: settings.hero_image_url ?? "",
+      hero_panel_label: settings.hero_panel_label,
+      hero_panel_title: settings.hero_panel_title,
+      hero_stat_years_value: settings.hero_stat_years_value,
+      hero_stat_years_label: settings.hero_stat_years_label,
+      hero_stat_projects_value: settings.hero_stat_projects_value,
+      hero_stat_projects_label: settings.hero_stat_projects_label,
+      hero_stat_ops_value: settings.hero_stat_ops_value,
+      hero_stat_ops_label: settings.hero_stat_ops_label,
+      hero_delivery_label: settings.hero_delivery_label,
       default_locale: settings.default_locale as SiteSettingsValues["default_locale"],
       enabled_locales: settings.enabled_locales as SiteSettingsValues["enabled_locales"],
       groq_translation_model:
@@ -70,8 +81,18 @@ export default function SettingsForm({
       autoresponder_body: settings.autoresponder_body,
       resend_from_name: settings.resend_from_name,
       resend_from_email: settings.resend_from_email,
+      header_nav_services: settings.header_nav_services,
+      header_nav_cases: settings.header_nav_cases,
+      header_nav_process: settings.header_nav_process,
+      header_nav_contact: settings.header_nav_contact,
+      header_access: settings.header_access,
+      footer_directory_label: settings.footer_directory_label,
+      footer_contact_label: settings.footer_contact_label,
+      footer_tagline: settings.footer_tagline,
+      ticker_label: settings.ticker_label,
     },
   });
+
   const contactEmailValue = useWatch({ control: form.control, name: "contact_email" });
 
   function onSubmit(values: SiteSettingsValues) {
@@ -80,7 +101,7 @@ export default function SettingsForm({
     startTransition(async () => {
       try {
         await saveSiteSettings(values);
-        setFeedback("Settings guardados.");
+        setFeedback("Ajustes guardados.");
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudieron guardar los cambios.");
       }
@@ -93,7 +114,7 @@ export default function SettingsForm({
     startTranslation(async () => {
       try {
         const result = await translateSiteSettingsGroup(form.getValues(), groupKey);
-        setFeedback(`${result.message} Locales: ${result.locales.join(", ").toUpperCase()}.`);
+        setFeedback(`${result.message} Idiomas: ${result.locales.join(", ").toUpperCase()}.`);
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudo traducir el bloque.");
       }
@@ -122,7 +143,7 @@ export default function SettingsForm({
             name="hero_badge"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hero kicker</FormLabel>
+                <FormLabel>Kicker del hero</FormLabel>
                 <FormControl>
                   <Input maxLength={60} {...field} />
                 </FormControl>
@@ -134,9 +155,325 @@ export default function SettingsForm({
 
         <div className="space-y-4 rounded-3xl border border-white/8 bg-white/[0.02] p-5">
           <div>
+            <p className="text-sm font-semibold text-white">Hero visual y credenciales</p>
+            <p className="mt-1 text-sm text-zinc-400">
+              Controla la foto principal, el badge de disponibilidad y los bloques de confianza
+              que acompañan al titular.
+            </p>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="hero_image_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL de la foto del hero</FormLabel>
+                <FormControl>
+                  <Input
+                    type="url"
+                    maxLength={200}
+                    placeholder="https://... o /founder_photo.png"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="hero_available_badge"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Badge de disponibilidad</FormLabel>
+                  <FormControl>
+                    <Input maxLength={60} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hero_delivery_label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etiqueta final del hero</FormLabel>
+                  <FormControl>
+                    <Input maxLength={50} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="hero_panel_label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etiqueta del panel lateral</FormLabel>
+                  <FormControl>
+                    <Input maxLength={60} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hero_panel_title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Título del panel lateral</FormLabel>
+                  <FormControl>
+                    <Input maxLength={120} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-3">
+              <FormField
+                control={form.control}
+                name="hero_stat_years_value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Valor experiencia</FormLabel>
+                    <FormControl>
+                      <Input maxLength={12} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="hero_stat_years_label"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Etiqueta experiencia</FormLabel>
+                    <FormControl>
+                      <Input maxLength={40} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <FormField
+                control={form.control}
+                name="hero_stat_projects_value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Valor proyectos</FormLabel>
+                    <FormControl>
+                      <Input maxLength={12} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="hero_stat_projects_label"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Etiqueta proyectos</FormLabel>
+                    <FormControl>
+                      <Input maxLength={40} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <FormField
+                control={form.control}
+                name="hero_stat_ops_value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Valor operativa</FormLabel>
+                    <FormControl>
+                      <Input maxLength={12} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="hero_stat_ops_label"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Etiqueta operativa</FormLabel>
+                    <FormControl>
+                      <Input maxLength={40} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 rounded-3xl border border-white/8 bg-white/[0.02] p-5">
+          <div>
+            <p className="text-sm font-semibold text-white">Navegación y Footer</p>
+            <p className="mt-1 text-sm text-zinc-400">
+              Personaliza los enlaces del menú superior y los textos descriptivos del pie de página.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="header_nav_services"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Menú: Servicios</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="header_nav_cases"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Menú: Casos</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="header_nav_process"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Menú: Proceso</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="header_nav_contact"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Menú: Contacto</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="header_access"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Botón de acceso</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="ticker_label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Texto del Ticker (CTA)</FormLabel>
+                  <FormControl>
+                    <Input maxLength={120} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="footer_directory_label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Columna Directorio</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="footer_contact_label"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Columna Contacto</FormLabel>
+                  <FormControl>
+                    <Input maxLength={40} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="footer_tagline"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Eslogan del footer</FormLabel>
+                <FormControl>
+                  <Input maxLength={180} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="space-y-4 rounded-3xl border border-white/8 bg-white/[0.02] p-5">
+          <div>
             <p className="text-sm font-semibold text-white">Idiomas de la landing</p>
             <p className="mt-1 text-sm text-zinc-400">
-              Define el idioma principal, activa los idiomas disponibles y lanza traducciones asistidas sin rehacer rutas ni contenido base.
+              Define el idioma principal, activa los idiomas disponibles y lanza traducciones
+              asistidas sin rehacer rutas ni contenido base.
             </p>
           </div>
 
@@ -195,7 +532,9 @@ export default function SettingsForm({
                               className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent accent-[#8da4b3]"
                             />
                             <span>
-                              <span className="block font-medium text-white">{locale.nativeLabel}</span>
+                              <span className="block font-medium text-white">
+                                {locale.nativeLabel}
+                              </span>
                               <span className="block text-xs uppercase tracking-[0.2em] text-zinc-500">
                                 {locale.label}
                               </span>
@@ -267,7 +606,8 @@ export default function SettingsForm({
           <div>
             <p className="text-sm font-semibold text-white">Automatización de email</p>
             <p className="mt-1 text-sm text-zinc-400">
-              El buzón interno de avisos usa el email de contacto actual. La autorespuesta se envía automáticamente al lead y puede traducirse desde este panel.
+              El buzón interno de avisos usa el email de contacto actual. La autorespuesta se
+              envía automáticamente al lead y puede traducirse desde este panel.
             </p>
           </div>
 
@@ -286,9 +626,13 @@ export default function SettingsForm({
                       className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent accent-[#8da4b3]"
                     />
                     <div>
-                      <FormLabel htmlFor="lead_notification_enabled">Aviso interno inmediato</FormLabel>
+                      <FormLabel htmlFor="lead_notification_enabled">
+                        Aviso interno inmediato
+                      </FormLabel>
                       <p className="mt-1 text-sm text-zinc-500">
-                        Envía una notificación a <span className="text-zinc-300">{contactEmailValue}</span> cada vez que entra un lead nuevo.
+                        Envía una notificación a{" "}
+                        <span className="text-zinc-300">{contactEmailValue}</span> cada vez que
+                        entra un lead nuevo.
                       </p>
                     </div>
                   </div>
@@ -310,9 +654,12 @@ export default function SettingsForm({
                       className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent accent-[#8da4b3]"
                     />
                     <div>
-                      <FormLabel htmlFor="autoresponder_enabled">Autorespuesta automática</FormLabel>
+                      <FormLabel htmlFor="autoresponder_enabled">
+                        Autorespuesta automática
+                      </FormLabel>
                       <p className="mt-1 text-sm text-zinc-500">
-                        Confirma la recepción del lead y promete respuesta en un plazo máximo de 24 horas.
+                        Confirma la recepción del lead y promete respuesta en un plazo máximo de 24
+                        horas.
                       </p>
                     </div>
                   </div>
@@ -370,7 +717,7 @@ export default function SettingsForm({
             name="autoresponder_subject"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Asunto de autorespuesta</FormLabel>
+                <FormLabel>Asunto de la autorespuesta</FormLabel>
                 <FormControl>
                   <Input maxLength={140} {...field} />
                 </FormControl>
@@ -384,7 +731,7 @@ export default function SettingsForm({
             name="autoresponder_body"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cuerpo de autorespuesta</FormLabel>
+                <FormLabel>Cuerpo de la autorespuesta</FormLabel>
                 <FormControl>
                   <Textarea rows={8} maxLength={2000} {...field} />
                 </FormControl>
@@ -439,7 +786,7 @@ export default function SettingsForm({
                 <FormControl>
                   <Input
                     maxLength={240}
-                    placeholder="software a medida, automatizacion, IA aplicada"
+                    placeholder="software a medida, automatización, IA aplicada"
                     {...field}
                   />
                 </FormControl>
@@ -502,7 +849,7 @@ export default function SettingsForm({
           name="hero_title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hero title</FormLabel>
+              <FormLabel>Título del hero</FormLabel>
               <FormControl>
                 <Textarea rows={3} maxLength={140} {...field} />
               </FormControl>
@@ -516,7 +863,7 @@ export default function SettingsForm({
           name="hero_subtitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hero subtitle</FormLabel>
+              <FormLabel>Subtítulo del hero</FormLabel>
               <FormControl>
                 <Textarea rows={5} maxLength={320} {...field} />
               </FormControl>
@@ -629,7 +976,7 @@ export default function SettingsForm({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button type="submit" disabled={isPending || Boolean(disabledReason)} title={disabledReason}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Guardar settings
+            Guardar ajustes
           </Button>
           {feedback || disabledReason ? (
             <p className="text-sm text-zinc-400">{feedback ?? disabledReason}</p>

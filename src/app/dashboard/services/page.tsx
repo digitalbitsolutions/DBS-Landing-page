@@ -10,7 +10,7 @@ export default async function DashboardServicesPage() {
   const { services, warning } = await getDashboardData();
   const { isLocalReadOnly } = await getDashboardCapabilities();
   const disabledReason = isLocalReadOnly
-    ? "Modo local en solo lectura. Anade SUPABASE_SERVICE_ROLE_KEY para editar servicios reales."
+    ? "Modo local en solo lectura. Añade SUPABASE_SERVICE_ROLE_KEY para editar servicios reales."
     : undefined;
   const translationDisabledReason = !hasGroqApiKey()
     ? "Configura GROQ_API_KEY o NEXT_PUBLIC_GROQ_API para traducir servicios."

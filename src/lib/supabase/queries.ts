@@ -82,10 +82,45 @@ export function normalizeSiteSettings(row: Partial<SiteSettings> | null | undefi
     ...row,
     site_name: safeString(row?.site_name, defaultSiteSettings.site_name),
     hero_badge: safeString(row?.hero_badge, defaultSiteSettings.hero_badge),
+    hero_available_badge: safeString(
+      row?.hero_available_badge,
+      defaultSiteSettings.hero_available_badge,
+    ),
     hero_title: safeString(row?.hero_title, defaultSiteSettings.hero_title),
     hero_subtitle: safeString(row?.hero_subtitle, defaultSiteSettings.hero_subtitle),
     hero_primary_cta: safeString(row?.hero_primary_cta, defaultSiteSettings.hero_primary_cta),
     hero_secondary_cta: safeString(row?.hero_secondary_cta, defaultSiteSettings.hero_secondary_cta),
+    hero_image_url: trimToNull(row?.hero_image_url) ?? defaultSiteSettings.hero_image_url,
+    hero_panel_label: safeString(row?.hero_panel_label, defaultSiteSettings.hero_panel_label),
+    hero_panel_title: safeString(row?.hero_panel_title, defaultSiteSettings.hero_panel_title),
+    hero_stat_years_value: safeString(
+      row?.hero_stat_years_value,
+      defaultSiteSettings.hero_stat_years_value,
+    ),
+    hero_stat_years_label: safeString(
+      row?.hero_stat_years_label,
+      defaultSiteSettings.hero_stat_years_label,
+    ),
+    hero_stat_projects_value: safeString(
+      row?.hero_stat_projects_value,
+      defaultSiteSettings.hero_stat_projects_value,
+    ),
+    hero_stat_projects_label: safeString(
+      row?.hero_stat_projects_label,
+      defaultSiteSettings.hero_stat_projects_label,
+    ),
+    hero_stat_ops_value: safeString(
+      row?.hero_stat_ops_value,
+      defaultSiteSettings.hero_stat_ops_value,
+    ),
+    hero_stat_ops_label: safeString(
+      row?.hero_stat_ops_label,
+      defaultSiteSettings.hero_stat_ops_label,
+    ),
+    hero_delivery_label: safeString(
+      row?.hero_delivery_label,
+      defaultSiteSettings.hero_delivery_label,
+    ),
     enabled_locales: enabledLocales,
     default_locale: normalizeDefaultLocale(row?.default_locale, enabledLocales),
     groq_translation_model: safeString(
@@ -269,10 +304,21 @@ export function buildSiteSettingsPayload(
     id: SETTINGS_ID,
     site_name: values.site_name.trim(),
     hero_badge: values.hero_badge.trim(),
+    hero_available_badge: values.hero_available_badge.trim(),
     hero_title: values.hero_title.trim(),
     hero_subtitle: values.hero_subtitle.trim(),
     hero_primary_cta: values.hero_primary_cta.trim(),
     hero_secondary_cta: values.hero_secondary_cta.trim(),
+    hero_image_url: trimToNull(values.hero_image_url),
+    hero_panel_label: values.hero_panel_label.trim(),
+    hero_panel_title: values.hero_panel_title.trim(),
+    hero_stat_years_value: values.hero_stat_years_value.trim(),
+    hero_stat_years_label: values.hero_stat_years_label.trim(),
+    hero_stat_projects_value: values.hero_stat_projects_value.trim(),
+    hero_stat_projects_label: values.hero_stat_projects_label.trim(),
+    hero_stat_ops_value: values.hero_stat_ops_value.trim(),
+    hero_stat_ops_label: values.hero_stat_ops_label.trim(),
+    hero_delivery_label: values.hero_delivery_label.trim(),
     default_locale: values.default_locale,
     enabled_locales: Array.from(new Set(values.enabled_locales)),
     groq_translation_model: values.groq_translation_model,
@@ -553,14 +599,16 @@ export async function saveSiteSettingsTranslationsRecord(
   currentTranslations: Database["public"]["Tables"]["site_settings"]["Row"]["translations"],
   nextTranslations: LocaleTranslationMap,
 ) {
-  const { error } = await supabase.from("site_settings").upsert({
+  const payload = {
     ...buildSiteSettingsPayload(values),
     translations: mergeLocaleTranslations(currentTranslations, nextTranslations),
-  });
+  };
 
-  if (error) {
-    throw new Error(mapSupabaseError(error, "los ajustes"));
-  }
+  await executeWriteWithSchemaFallback(payload, "los ajustes", async (nextPayload) =>
+    supabase
+      .from("site_settings")
+      .upsert(nextPayload as Database["public"]["Tables"]["site_settings"]["Insert"]),
+  );
 }
 
 export async function saveServiceRecord(supabase: DBSupabaseClient, values: ServiceValues) {

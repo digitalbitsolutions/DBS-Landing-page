@@ -10,9 +10,21 @@ vi.mock("@/app/dashboard/actions", () => ({
 }));
 
 describe("SettingsForm", () => {
-  it("renders SEO, translation and email automation fields with settings values", () => {
+  it("renders hero visual, SEO, translation and email automation fields with settings values", () => {
     render(<SettingsForm settings={defaultSiteSettings} />);
 
+    expect(screen.getByLabelText("URL de la foto del hero")).toHaveValue(
+      defaultSiteSettings.hero_image_url,
+    );
+    expect(screen.getByLabelText("Badge de disponibilidad")).toHaveValue(
+      defaultSiteSettings.hero_available_badge,
+    );
+    expect(screen.getByLabelText("Título del panel lateral")).toHaveValue(
+      defaultSiteSettings.hero_panel_title,
+    );
+    expect(screen.getByLabelText("Valor experiencia")).toHaveValue(
+      defaultSiteSettings.hero_stat_years_value,
+    );
     expect(screen.getByLabelText("SEO title")).toHaveValue(defaultSiteSettings.seo_title);
     expect(screen.getByLabelText("Meta description")).toHaveValue(
       defaultSiteSettings.seo_description,
@@ -40,6 +52,8 @@ describe("SettingsForm", () => {
     expect(screen.getByLabelText("Aviso interno inmediato")).toBeChecked();
     expect(screen.getByLabelText("Autorespuesta automática")).toBeChecked();
     expect(screen.getByRole("button", { name: /Traducir Hero/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Traducir Email automation/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Traducir Automatización de email/i }),
+    ).toBeInTheDocument();
   });
 });

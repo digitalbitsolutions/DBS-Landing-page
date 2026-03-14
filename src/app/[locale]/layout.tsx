@@ -48,7 +48,7 @@ export default async function LocaleMarketingLayout({ children, params }: Locale
     notFound();
   }
   const localizedSettings = localizeSiteSettings(settings, locale);
-  const marketingCopy = resolveMarketingCopy(settings, locale);
+  const marketingCopy = resolveMarketingCopy(localizedSettings, locale);
 
   return (
     <>

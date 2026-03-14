@@ -96,10 +96,21 @@ describe("supabase queries helpers", () => {
       id: 1,
       site_name: "DBS",
       hero_badge: " ",
+      hero_available_badge: " ",
       hero_title: "Hero principal suficientemente largo",
       hero_subtitle: "Subtitulo suficientemente largo para ser valido en la landing de DBS.",
       hero_primary_cta: "Solicitar propuesta",
       hero_secondary_cta: "Ver casos",
+      hero_image_url: " ",
+      hero_panel_label: " ",
+      hero_panel_title: " ",
+      hero_stat_years_value: " ",
+      hero_stat_years_label: " ",
+      hero_stat_projects_value: " ",
+      hero_stat_projects_label: " ",
+      hero_stat_ops_value: " ",
+      hero_stat_ops_label: " ",
+      hero_delivery_label: " ",
       default_locale: "qu",
       enabled_locales: ["en", "ca"],
       groq_translation_model: " ",
@@ -120,7 +131,10 @@ describe("supabase queries helpers", () => {
       updated_at: "2026-03-13T10:00:00.000Z",
     });
 
-    expect(settings.hero_badge).toBe("Liderazgo Tecnico en PHP & WP");
+    expect(settings.hero_badge).toBe("Liderazgo técnico en PHP y WordPress");
+    expect(settings.hero_image_url).toBe("/founder_photo.png");
+    expect(settings.hero_panel_title).toBe("PHP, WordPress, producto web e integración moderna.");
+    expect(settings.hero_stat_projects_value).toBe("12+");
     expect(settings.seo_title).toContain("Digital Bit Solutions");
     expect(settings.seo_keywords.length).toBeGreaterThan(0);
     expect(settings.enabled_locales).toEqual(["en", "ca"]);
@@ -134,11 +148,22 @@ describe("supabase queries helpers", () => {
     const payload = buildSiteSettingsPayload({
       site_name: " Digital Bit Solutions ",
       hero_badge: " Liderazgo Tecnico en PHP & WP ",
+      hero_available_badge: " Disponible para nuevos proyectos ",
       hero_title: "Software a medida y producto web con criterio tecnico.",
       hero_subtitle:
         "Disenamos, construimos y mantenemos landings, paneles y automatizaciones con una base clara.",
       hero_primary_cta: "Solicitar propuesta",
       hero_secondary_cta: "Ver proyectos",
+      hero_image_url: " https://digitalbitsolutions.com/founder.jpg ",
+      hero_panel_label: " Liderazgo tecnico senior ",
+      hero_panel_title: " PHP, WordPress, producto web e integracion moderna. ",
+      hero_stat_years_value: " 20+ ",
+      hero_stat_years_label: " anos ",
+      hero_stat_projects_value: " 12+ ",
+      hero_stat_projects_label: " proyectos ",
+      hero_stat_ops_value: " IA ",
+      hero_stat_ops_label: " ops ",
+      hero_delivery_label: " Delivery premium ",
       default_locale: "es",
       enabled_locales: ["es", "en", "ca", "qu"],
       groq_translation_model: "openai/gpt-oss-20b",
@@ -165,6 +190,9 @@ describe("supabase queries helpers", () => {
     });
 
     expect(payload.seo_keywords).toEqual(["software a medida", "automatizacion", "IA aplicada"]);
+    expect(payload.hero_image_url).toBe("https://digitalbitsolutions.com/founder.jpg");
+    expect(payload.hero_stat_years_value).toBe("20+");
+    expect(payload.hero_delivery_label).toBe("Delivery premium");
     expect(payload.contact_email).toBe("hola@dbs.dev");
     expect(payload.seo_og_image_url).toBe("https://digitalbitsolutions.com/og.jpg");
     expect(payload.enabled_locales).toEqual(["es", "en", "ca", "qu"]);

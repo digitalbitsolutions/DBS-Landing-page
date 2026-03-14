@@ -20,6 +20,7 @@ interface HeroSplitProps {
 
 export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
   const rootRef = useRef<HTMLElement | null>(null);
+  const heroImageSrc = settings.hero_image_url?.trim() || "/founder_photo.png";
 
   useEffect(() => {
     const root = rootRef.current;
@@ -103,21 +104,23 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
 
             <div data-hero-copy className="grid gap-4 border-t border-white/8 pt-8 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-2xl font-semibold text-stone-100">20+</p>
+                <p className="text-2xl font-semibold text-stone-100">{settings.hero_stat_years_value}</p>
                 <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.22em] text-zinc-500">
-                  Años liderando stacks criticos
+                  {settings.hero_stat_years_label}
                 </p>
               </div>
               <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-2xl font-semibold text-stone-100">PHP / WP</p>
+                <p className="text-2xl font-semibold text-stone-100">
+                  {settings.hero_stat_projects_value}
+                </p>
                 <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.22em] text-zinc-500">
-                  Base madura + producto web moderno
+                  {settings.hero_stat_projects_label}
                 </p>
               </div>
               <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-2xl font-semibold text-stone-100">IA + Ops</p>
+                <p className="text-2xl font-semibold text-stone-100">{settings.hero_stat_ops_value}</p>
                 <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.22em] text-zinc-500">
-                  Automatizacion seria para equipos pequeños
+                  {settings.hero_stat_ops_label}
                 </p>
               </div>
             </div>
@@ -133,7 +136,8 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
                 <Activity className="h-3 w-3" /> {settings.location_peru ?? "Peru"}
               </span>
               <span className="flex items-center gap-2">
-                <ShieldCheck className="h-3 w-3" /> {copy.hero_delivery_label}
+                <ShieldCheck className="h-3 w-3" />{" "}
+                {settings.hero_delivery_label || copy.hero_delivery_label}
               </span>
             </div>
           </div>
@@ -144,7 +148,7 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
               <div className="relative">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-white/10 bg-black">
                   <Image
-                    src="/founder_photo.png"
+                    src={heroImageSrc}
                     alt="Lead technical consultant"
                     fill
                     priority
@@ -153,35 +157,41 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a1219] via-transparent to-transparent" />
                   <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full border border-[#b59d85]/25 bg-[#b59d85]/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] text-[#d8c4b3]">
                     <span className="h-2 w-2 rounded-full bg-[#d8c4b3]" />
-                    {copy.hero_available_badge}
+                    {settings.hero_available_badge || copy.hero_available_badge}
                   </div>
                   <div
                     data-mock-card
                     className="absolute inset-x-5 bottom-5 rounded-[24px] border border-white/10 bg-black/45 p-5 backdrop-blur-md"
                   >
                     <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#d5dfe5]">
-                      {copy.hero_panel_label}
+                      {settings.hero_panel_label || copy.hero_panel_label}
                     </p>
                     <p className="mt-3 text-2xl font-semibold text-white">
-                      {copy.hero_panel_title}
+                      {settings.hero_panel_title || copy.hero_panel_title}
                     </p>
                     <div className="mt-5 grid grid-cols-3 gap-3">
                       <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                        <p className="text-xl font-semibold text-stone-100">20+</p>
+                        <p className="text-xl font-semibold text-stone-100">
+                          {settings.hero_stat_years_value}
+                        </p>
                         <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-500">
-                          {copy.hero_stat_years_label}
+                          {settings.hero_stat_years_label || copy.hero_stat_years_label}
                         </p>
                       </div>
                       <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                        <p className="text-xl font-semibold text-stone-100">12+</p>
+                        <p className="text-xl font-semibold text-stone-100">
+                          {settings.hero_stat_projects_value}
+                        </p>
                         <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-500">
-                          {copy.hero_stat_projects_label}
+                          {settings.hero_stat_projects_label || copy.hero_stat_projects_label}
                         </p>
                       </div>
                       <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                        <p className="text-xl font-semibold text-stone-100">IA</p>
+                        <p className="text-xl font-semibold text-stone-100">
+                          {settings.hero_stat_ops_value}
+                        </p>
                         <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-500">
-                          {copy.hero_stat_ops_label}
+                          {settings.hero_stat_ops_label || copy.hero_stat_ops_label}
                         </p>
                       </div>
                     </div>

@@ -16,28 +16,31 @@ export const defaultMarketingCopy = {
   hero_stat_years_label: "años",
   hero_stat_projects_label: "proyectos",
   hero_stat_ops_label: "ops",
-  hero_delivery_label: "Delivery premium",
+  hero_delivery_label: "Entrega premium",
   services_kicker: "Capacidad técnica",
   services_title: "Arquitectura orientada a\nresolución de negocio.",
-  services_description: "Desarrollamos soluciones sólidas, bien pensadas y fáciles de sostener en el tiempo.",
-  services_empty: "Sin servicios sincronizados. Verifique la base de datos Supabase.",
+  services_description:
+    "Desarrollamos soluciones sólidas, bien pensadas y fáciles de sostener en el tiempo.",
+  services_empty: "Sin servicios sincronizados. Verifica la base de datos de Supabase.",
   projects_kicker: "Casos de éxito",
   projects_title: "Experiencia aplicada a\nproyectos con recorrido.",
   projects_code_label: "[ 010.1 ] SELECCIÓN DE PROYECTOS",
-  projects_code_detail: "Muestras concretas de criterio técnico, claridad comercial y ejecución estable.",
+  projects_code_detail:
+    "Muestras concretas de criterio técnico, claridad comercial y ejecución estable.",
   projects_empty: "No hay proyectos marcados como destacados en la base de datos.",
-  project_cover_note: "Caso de éxito con portada real gestionada desde CMS.",
+  project_cover_note: "Caso de éxito con portada real gestionada desde el CMS.",
   project_internal_label: "Interno",
   project_live_label: "Output",
   process_kicker: "Método de trabajo",
   process_title: "Rigor, claridad\ny sin sobresaltos.",
-  process_summary: "Tres fases estructuradas para reducir incertidumbre y asegurar entregas limpias.",
+  process_summary:
+    "Tres fases estructuradas para reducir incertidumbre y asegurar entregas limpias.",
   process_step_1_title: "Diagnóstico técnico",
   process_step_1_description:
-    "Aterrizaje del problema, scope real y nivel de urgencia evitando semanas de ruido para ejecutar el core.",
+    "Aterrizaje del problema, alcance real y nivel de urgencia evitando semanas de ruido para ejecutar el núcleo.",
   process_step_2_title: "Entrega enfocada",
   process_step_2_description:
-    "Stack solido, sin librerias de moda innecesarias. Base construida para operar con estabilidad total.",
+    "Stack sólido, sin librerías de moda innecesarias. Base construida para operar con estabilidad total.",
   process_step_3_title: "Escala controlada",
   process_step_3_description:
     "El sistema queda diseñado para absorber futuras automatizaciones y módulos, sin refactorización obligatoria.",
@@ -75,11 +78,27 @@ export type FlatTranslationFields = Partial<Record<string, string>>;
 export type LocaleTranslationMap = Partial<Record<AppLocale, FlatTranslationFields>>;
 
 export const translatableSiteSettingsKeys = [
+  "site_name",
+  "header_nav_services",
+  "header_nav_cases",
+  "header_nav_process",
+  "header_nav_contact",
+  "header_access",
+  "footer_directory_label",
+  "footer_contact_label",
+  "footer_tagline",
+  "ticker_label",
   "hero_badge",
   "hero_title",
   "hero_subtitle",
   "hero_primary_cta",
   "hero_secondary_cta",
+  "hero_panel_label",
+  "hero_panel_title",
+  "hero_stat_years_label",
+  "hero_stat_projects_label",
+  "hero_stat_ops_label",
+  "hero_delivery_label",
   "autoresponder_subject",
   "autoresponder_body",
   "seo_title",
@@ -93,6 +112,7 @@ export const marketingTranslationGroups = {
   navigation: {
     label: "Header y footer",
     fields: [
+      "site_name",
       "header_nav_services",
       "header_nav_cases",
       "header_nav_process",
@@ -126,7 +146,7 @@ export const marketingTranslationGroups = {
     fields: ["services_kicker", "services_title", "services_description", "services_empty"],
   },
   projects: {
-    label: "Casos de exito",
+    label: "Casos de éxito",
     fields: [
       "projects_kicker",
       "projects_title",
@@ -179,7 +199,7 @@ export const marketingTranslationGroups = {
     ],
   },
   email_automation: {
-    label: "Email automation",
+    label: "Automatización de email",
     fields: ["autoresponder_subject", "autoresponder_body"],
   },
   seo: {
@@ -231,14 +251,16 @@ function getLocaleFields(value: Json | null | undefined, locale: AppLocale) {
 }
 
 export function resolveMarketingCopy(
-  settings: Pick<SiteSettings, "translations">,
+  settings: SiteSettings,
   locale: AppLocale,
 ): MarketingCopy {
   const localeFields = getLocaleFields(settings.translations, locale);
   const localized = { ...defaultMarketingCopy } as Record<MarketingCopyKey, string>;
 
   (Object.keys(defaultMarketingCopy) as MarketingCopyKey[]).forEach((key) => {
-    localized[key] = localeFields[key] ?? defaultMarketingCopy[key];
+    // Priority: 1. Translated JSON, 2. Localized Column from settings, 3. Default Copy
+    const settingValue = (settings as unknown as Record<string, string | undefined>)[key];
+    localized[key] = localeFields[key] ?? settingValue ?? defaultMarketingCopy[key];
   });
 
   return localized as MarketingCopy;
