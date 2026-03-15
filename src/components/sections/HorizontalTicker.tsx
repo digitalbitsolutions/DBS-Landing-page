@@ -76,7 +76,7 @@ export default function HorizontalTicker({ copy }: { copy: MarketingCopy }) {
   const items = [...tickerItems, ...tickerItems];
 
   return (
-    <section className="border-y border-white/[0.03] bg-black/40 py-10">
+    <section className="border-y border-white/[0.03] bg-black/40 py-10 overflow-hidden">
       <div className="section-shell relative">
         <div className="absolute left-0 top-1/2 flex -translate-y-1/2 items-center gap-2">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#8da4b3]" />
@@ -98,7 +98,7 @@ export default function HorizontalTicker({ copy }: { copy: MarketingCopy }) {
               {items.map((item, index) => (
                 <div
                   key={`${item.label}-${index}`}
-                  className="group mx-4 flex items-center gap-3 rounded-md px-4 py-3 transition-colors hover:bg-white/[0.02]"
+                  className="group mx-4 flex items-center gap-3 rounded-md px-4 py-3 transition-colors hover:bg-white/[0.02] cursor-pointer"
                 >
                   <RenderIcon
                     icon={item.icon}

@@ -61,8 +61,9 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
       ref={rootRef}
       className="grid-glow relative flex min-h-[92vh] items-center overflow-hidden pb-20 pt-24 md:pb-32 md:pt-32"
     >
-      <div className="absolute inset-x-0 top-16 -z-10 mx-auto h-[420px] w-[640px] rounded-full bg-[#8da4b3]/12 blur-[140px]" />
-      <div className="absolute right-0 top-24 -z-10 h-[360px] w-[420px] rounded-full bg-[#b59d85]/8 blur-[120px]" />
+      <div className="absolute inset-x-0 top-16 -z-10 mx-auto h-[420px] w-full max-w-[640px] rounded-full bg-[#8da4b3]/12 blur-[140px]" />
+      <div className="absolute right-0 top-24 -z-10 h-[360px] w-full max-w-[420px] rounded-full bg-[#b59d85]/8 blur-[120px]" />
+
 
       <div className="section-shell relative z-10 w-full">
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_520px] xl:grid-cols-[minmax(0,1fr)_560px] lg:items-center">
@@ -78,13 +79,13 @@ export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
             <div className="space-y-6">
               <h1
                 data-hero-copy
-                className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-[78px] lg:leading-[0.98]"
+                className="max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-[78px] lg:leading-[0.98] break-words hyphens-auto min-[350px]:text-5xl"
               >
                 {settings.hero_title}
               </h1>
               <p
                 data-hero-copy
-                className="max-w-2xl text-lg font-light leading-relaxed text-zinc-400 md:text-[22px]"
+                className="max-w-2xl text-lg font-light leading-relaxed text-zinc-400 md:text-[22px] break-words"
               >
                 {settings.hero_subtitle}
               </p>

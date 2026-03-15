@@ -20,7 +20,7 @@ export default function StepCard({ index, title, description }: StepCardProps) {
           </span>
           <ArrowDownRight className="h-5 w-5 text-zinc-600 opacity-0 transition-all duration-500 group-hover:translate-x-1 group-hover:translate-y-1 group-hover:text-[#cbd7de] group-hover:opacity-100" />
         </div>
-        <CardTitle className="text-xl font-medium tracking-tight text-white group-hover:text-stone-100">
+        <CardTitle className="text-xl font-medium tracking-tight text-white group-hover:text-stone-100 break-words hyphens-auto">
           {title}
         </CardTitle>
       </CardHeader>

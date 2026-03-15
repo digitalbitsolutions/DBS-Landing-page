@@ -100,8 +100,9 @@ export default function SiteHeader({
           type="button"
           aria-label={open ? "Cerrar menu" : "Abrir menu"}
           onClick={() => setOpen((value) => !value)}
-          className="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-zinc-300 md:hidden"
+          className="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/10 text-zinc-300 md:hidden cursor-pointer"
         >
+
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
