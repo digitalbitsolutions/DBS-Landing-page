@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { toggleProjectFeatured, translateProjectContent } from "@/app/dashboard/actions";
@@ -22,12 +23,14 @@ export default function ProjectRowActions({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isFeaturePending, startFeatureTransition] = useTransition();
   const [isTranslatePending, startTranslateTransition] = useTransition();
+  const router = useRouter();
 
   function handleToggleFeatured() {
     startFeatureTransition(async () => {
       try {
         setFeedback(null);
         await toggleProjectFeatured(project.id, !project.featured);
+        router.refresh();
         setFeedback(project.featured ? "Proyecto marcado como normal." : "Proyecto destacado.");
       } catch (error) {
         setFeedback(
@@ -42,6 +45,7 @@ export default function ProjectRowActions({
       try {
         setFeedback(null);
         await translateProjectContent(project.id);
+        router.refresh();
         setFeedback("Proyecto traducido correctamente.");
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudo traducir el proyecto.");

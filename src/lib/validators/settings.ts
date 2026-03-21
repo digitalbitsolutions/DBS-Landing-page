@@ -113,6 +113,7 @@ export const siteSettingsSchema = z
     footer_contact_label: z.string().trim().min(2).max(40),
     footer_tagline: z.string().trim().min(10).max(180),
     ticker_label: z.string().trim().min(5).max(120),
+    translations: z.record(z.string(), z.record(z.string(), z.string().trim())).optional(),
   })
   .superRefine((values, ctx) => {
     if (!values.enabled_locales.includes(values.default_locale)) {

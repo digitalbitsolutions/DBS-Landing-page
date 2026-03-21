@@ -72,7 +72,14 @@ export default function LoginForm() {
     });
 
     if (signInError) {
-      setError(signInError.message);
+      const message = signInError.message.toLowerCase();
+      if (message.includes("invalid login credentials")) {
+        setError("Credenciales invalidas. Revisa el email y la contrasena.");
+      } else if (message.includes("email not confirmed")) {
+        setError("El email no ha sido confirmado.");
+      } else {
+        setError("Error al iniciar sesion. Intentalo de nuevo.");
+      }
       return;
     }
 

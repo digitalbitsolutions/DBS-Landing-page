@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, MoreHorizontal } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { updateLeadStatus } from "@/app/dashboard/actions";
@@ -14,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { LeadStatus } from "@/lib/supabase/database.types";
+import { cn } from "@/lib/utils";
 
 interface LeadStatusMenuProps {
   leadId: string;
@@ -22,10 +24,18 @@ interface LeadStatusMenuProps {
 }
 
 const items: Array<{ label: string; value: LeadStatus }> = [
-  { label: "New", value: "new" },
-  { label: "Contacted", value: "contacted" },
-  { label: "Closed", value: "closed" },
+  { label: "Nuevo", value: "new" },
+  { label: "Contactado", value: "contacted" },
+  { label: "Cerrado", value: "closed" },
 ];
+
+const statusClasses: Record<LeadStatus, string> = {
+  new: "border-amber-400/30 bg-amber-400/10 text-amber-100 hover:border-amber-300/40 hover:bg-amber-400/15",
+  contacted:
+    "border-cyan-400/30 bg-cyan-400/10 text-cyan-100 hover:border-cyan-300/40 hover:bg-cyan-400/15",
+  closed:
+    "border-emerald-400/30 bg-emerald-400/10 text-emerald-100 hover:border-emerald-300/40 hover:bg-emerald-400/15",
+};
 
 export default function LeadStatusMenu({
   leadId,
@@ -34,12 +44,15 @@ export default function LeadStatusMenu({
 }: LeadStatusMenuProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const currentItem = items.find((item) => item.value === currentStatus) ?? items[0];
 
   function handleChange(status: LeadStatus) {
     startTransition(async () => {
       try {
         setError(null);
         await updateLeadStatus(leadId, status);
+        router.refresh();
       } catch (nextError) {
         setError(nextError instanceof Error ? nextError.message : "No se pudo actualizar el estado.");
       }
@@ -50,12 +63,21 @@ export default function LeadStatusMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
           disabled={isPending || Boolean(disabledReason)}
           title={error ?? disabledReason ?? undefined}
+          className={cn(
+            "min-w-[138px] justify-between rounded-full px-3",
+            statusClasses[currentStatus],
+          )}
         >
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+          <span>{currentItem.label}</span>
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

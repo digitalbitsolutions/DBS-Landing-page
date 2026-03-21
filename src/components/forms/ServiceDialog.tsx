@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
@@ -39,6 +40,7 @@ export default function ServiceDialog({ service, disabledReason }: ServiceDialog
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const form = useForm<ServiceValues>({
     resolver: zodResolver(serviceSchema),
@@ -58,6 +60,7 @@ export default function ServiceDialog({ service, disabledReason }: ServiceDialog
     startTransition(async () => {
       try {
         await saveService(values);
+        router.refresh();
         form.reset({
           id: service?.id,
           title: service?.title ?? "",

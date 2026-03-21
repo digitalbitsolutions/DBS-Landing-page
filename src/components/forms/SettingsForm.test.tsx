@@ -13,13 +13,14 @@ describe("SettingsForm", () => {
   it("renders hero visual, SEO, translation and email automation fields with settings values", () => {
     render(<SettingsForm settings={defaultSiteSettings} />);
 
-    expect(screen.getByLabelText("URL de la foto del hero")).toHaveValue(
+    expect(screen.getByAltText("Preview de la imagen principal del hero")).toHaveAttribute(
+      "src",
       defaultSiteSettings.hero_image_url,
     );
     expect(screen.getByLabelText("Badge de disponibilidad")).toHaveValue(
       defaultSiteSettings.hero_available_badge,
     );
-    expect(screen.getByLabelText("Título del panel lateral")).toHaveValue(
+    expect(screen.getAllByLabelText(/panel lateral/i)[1]).toHaveValue(
       defaultSiteSettings.hero_panel_title,
     );
     expect(screen.getByLabelText("Valor experiencia")).toHaveValue(
@@ -32,7 +33,11 @@ describe("SettingsForm", () => {
     expect(screen.getByLabelText("SEO keywords")).toHaveValue(
       defaultSiteSettings.seo_keywords.join(", "),
     );
-    expect(screen.getByLabelText("Modelo de Groq para traducción")).toHaveValue(
+    expect(screen.getByAltText("Preview de la imagen Open Graph")).toHaveAttribute(
+      "src",
+      defaultSiteSettings.seo_og_image_url,
+    );
+    expect(screen.getByLabelText(/Modelo de Groq/i)).toHaveValue(
       defaultSiteSettings.groq_translation_model,
     );
     expect(screen.getByLabelText("Nombre remitente")).toHaveValue(
@@ -44,16 +49,14 @@ describe("SettingsForm", () => {
     expect(screen.getByLabelText("Idioma principal")).toHaveValue(
       defaultSiteSettings.default_locale,
     );
-    expect(screen.getByLabelText("Español")).toBeChecked();
-    expect(screen.getByLabelText("Quechua")).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /Espa/i })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Quechua" })).toBeChecked();
     expect(screen.getByLabelText("Canonical URL")).toHaveValue(
       defaultSiteSettings.seo_canonical_url,
     );
-    expect(screen.getByLabelText("Aviso interno inmediato")).toBeChecked();
-    expect(screen.getByLabelText("Autorespuesta automática")).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /Aviso interno inmediato/i })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /Autorespuesta/i })).toBeChecked();
     expect(screen.getByRole("button", { name: /Traducir Hero/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Traducir Automatización de email/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Traducir .*email/i })).toBeInTheDocument();
   });
 });
