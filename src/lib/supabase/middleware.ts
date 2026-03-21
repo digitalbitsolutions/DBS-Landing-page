@@ -23,7 +23,7 @@ export function updateSession(request: NextRequest, initialResponse?: NextRespon
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({
+        response = initialResponse ?? NextResponse.next({
           request,
         });
         cookiesToSet.forEach(({ name, value, options }) =>

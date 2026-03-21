@@ -340,6 +340,7 @@ export function buildSiteSettingsPayload(
     location_barcelona: trimToNull(values.location_barcelona),
     location_peru: trimToNull(values.location_peru),
     footer_text: values.footer_text.trim(),
+    translations: values.translations ?? {},
   };
 }
 

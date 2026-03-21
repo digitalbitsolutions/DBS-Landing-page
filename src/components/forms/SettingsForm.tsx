@@ -2,14 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Languages, Loader2, Save } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type ControllerRenderProps, type FieldPath } from "react-hook-form";
 
 import { saveSiteSettings, translateSiteSettingsGroup } from "@/app/dashboard/actions";
+import ImageField from "@/components/dashboard/ImageField";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,8 +22,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { marketingTranslationGroups } from "@/lib/data/marketing-copy";
 import { groqTranslationModels } from "@/lib/groq";
-import { localeOptions } from "@/lib/i18n";
+import { type AppLocale, localeOptions } from "@/lib/i18n";
 import { formatSeoKeywordsInput } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 import type { SiteSettings } from "@/lib/supabase/database.types";
 import { siteSettingsSchema, type SiteSettingsValues } from "@/lib/validators/settings";
 
@@ -38,6 +42,14 @@ export default function SettingsForm({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isTranslating, startTranslation] = useTransition();
+  const router = useRouter();
+  const [committedImages, setCommittedImages] = useState({
+    hero: settings.hero_image_url ?? "",
+    og: settings.seo_og_image_url ?? "",
+  });
+
+  const [activeLocale, setActiveLocale] = useState<AppLocale>(settings.default_locale as AppLocale);
+  const enabledLocales = settings.enabled_locales as AppLocale[];
 
   const form = useForm<SiteSettingsValues>({
     resolver: zodResolver(siteSettingsSchema),
@@ -90,6 +102,7 @@ export default function SettingsForm({
       footer_contact_label: settings.footer_contact_label,
       footer_tagline: settings.footer_tagline,
       ticker_label: settings.ticker_label,
+      translations: settings.translations as Record<string, Record<string, string>>,
     },
   });
 
@@ -101,6 +114,11 @@ export default function SettingsForm({
     startTransition(async () => {
       try {
         await saveSiteSettings(values);
+        router.refresh();
+        setCommittedImages({
+          hero: values.hero_image_url,
+          og: values.seo_og_image_url,
+        });
         setFeedback("Ajustes guardados.");
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudieron guardar los cambios.");
@@ -114,6 +132,7 @@ export default function SettingsForm({
     startTranslation(async () => {
       try {
         const result = await translateSiteSettingsGroup(form.getValues(), groupKey);
+        router.refresh();
         setFeedback(`${result.message} Idiomas: ${result.locales.join(", ").toUpperCase()}.`);
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudo traducir el bloque.");
@@ -121,18 +140,133 @@ export default function SettingsForm({
     });
   }
 
+  const isBaseLocale = activeLocale === settings.default_locale;
+
+  const TranslatableInput = ({
+    fieldName,
+    baseField,
+    ...props
+  }: {
+    fieldName: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    baseField: ControllerRenderProps<SiteSettingsValues, any>;
+    [key: string]: unknown;
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (isBaseLocale) return <Input {...baseField} {...(props as any)} />;
+
+    const translationKey = `translations.${activeLocale}.${fieldName}` as FieldPath<SiteSettingsValues>;
+    return (
+      <Input
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...(props as any)}
+        value={(form.watch(translationKey) as string) || ""}
+        onChange={(e) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          form.setValue(translationKey, e.target.value as any, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }}
+      />
+    );
+  };
+
+  const TranslatableTextarea = ({
+    fieldName,
+    baseField,
+    ...props
+  }: {
+    fieldName: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    baseField: ControllerRenderProps<SiteSettingsValues, any>;
+    [key: string]: unknown;
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (isBaseLocale) return <Textarea {...baseField} {...(props as any)} />;
+
+    const translationKey = `translations.${activeLocale}.${fieldName}` as FieldPath<SiteSettingsValues>;
+    return (
+      <Textarea
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...(props as any)}
+        value={(form.watch(translationKey) as string) || ""}
+        onChange={(e) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          form.setValue(translationKey, e.target.value as any, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }}
+      />
+    );
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="relative space-y-6">
+        <div className="sticky top-0 z-20 -mx-6 mb-6 border-b border-white/10 bg-[#0a1219]/95 px-6 py-4 backdrop-blur-sm">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-1 rounded-xl border border-white/5 bg-white/[0.03] p-1">
+              {enabledLocales.map((locale) => (
+                <button
+                  key={locale}
+                  type="button"
+                  onClick={() => setActiveLocale(locale)}
+                  className={cn(
+                    "px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-lg transition-all",
+                    activeLocale === locale
+                      ? "bg-[#8da4b3] text-[#0a1219] shadow-lg shadow-[#8da4b3]/20"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5",
+                  )}
+                >
+                  {locale}
+                  {locale === settings.default_locale && (
+                    <span className="ml-1.5 opacity-60 text-[10px] lowercase">(base)</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isPending || Boolean(disabledReason)}
+              className="h-11 w-full bg-[#8da4b3] px-6 font-semibold text-[#0a1219] shadow-lg shadow-[#8da4b3]/20 hover:bg-[#8da4b3]/90 sm:w-auto rounded-xl"
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Guardar Ajustes
+            </Button>
+          </div>
+        </div>
+
+        {feedback ? (
+          <div
+            className={cn(
+              "rounded-2xl border px-4 py-3 text-sm font-medium",
+              feedback.includes("guardados") || feedback.includes("Idiomas")
+                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                : "border-red-500/20 bg-red-500/10 text-red-400",
+            )}
+          >
+            {feedback}
+          </div>
+        ) : null}
+
         <div className="grid gap-5 md:grid-cols-2">
           <FormField
             control={form.control}
             name="site_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre del sitio</FormLabel>
+                <FormLabel>
+                  Nombre del sitio {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Input maxLength={80} {...field} />
+                  <TranslatableInput fieldName="site_name" baseField={field} maxLength={80} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,9 +277,11 @@ export default function SettingsForm({
             name="hero_badge"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kicker del hero</FormLabel>
+                <FormLabel>
+                  Kicker del hero {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Input maxLength={60} {...field} />
+                  <TranslatableInput fieldName="hero_badge" baseField={field} maxLength={60} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -167,15 +303,21 @@ export default function SettingsForm({
             name="hero_image_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL de la foto del hero</FormLabel>
+                <FormLabel>Imagen principal del hero</FormLabel>
                 <FormControl>
-                  <Input
-                    type="url"
-                    maxLength={200}
-                    placeholder="https://... o /founder_photo.png"
-                    {...field}
+                  <ImageField
+                    label="Imagen principal del hero"
+                    value={field.value}
+                    initialValue={committedImages.hero}
+                    target="site.hero"
+                    previewAlt="Preview de la imagen principal del hero"
+                    disabled={Boolean(disabledReason)}
+                    disabledReason={disabledReason}
+                    helperText="Se muestra en el bloque visual principal de la landing."
+                    onChange={field.onChange}
                   />
                 </FormControl>
+                <FormDescription>Si la eliminas, la landing volvera a la imagen fallback actual.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -187,9 +329,15 @@ export default function SettingsForm({
               name="hero_available_badge"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Badge de disponibilidad</FormLabel>
+                  <FormLabel>
+                    Badge de disponibilidad {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={60} {...field} />
+                    <TranslatableInput
+                      fieldName="hero_available_badge"
+                      baseField={field}
+                      maxLength={60}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -200,9 +348,15 @@ export default function SettingsForm({
               name="hero_delivery_label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Etiqueta final del hero</FormLabel>
+                  <FormLabel>
+                    Etiqueta final del hero {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={50} {...field} />
+                    <TranslatableInput
+                      fieldName="hero_delivery_label"
+                      baseField={field}
+                      maxLength={50}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -216,9 +370,11 @@ export default function SettingsForm({
               name="hero_panel_label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Etiqueta del panel lateral</FormLabel>
+                  <FormLabel>
+                    Etiqueta del panel lateral {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={60} {...field} />
+                    <TranslatableInput fieldName="hero_panel_label" baseField={field} maxLength={60} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -229,9 +385,11 @@ export default function SettingsForm({
               name="hero_panel_title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título del panel lateral</FormLabel>
+                  <FormLabel>
+                    Título del panel lateral {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={120} {...field} />
+                    <TranslatableInput fieldName="hero_panel_title" baseField={field} maxLength={120} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -259,9 +417,15 @@ export default function SettingsForm({
                 name="hero_stat_years_label"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Etiqueta experiencia</FormLabel>
+                    <FormLabel>
+                      Etiqueta experiencia {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                    </FormLabel>
                     <FormControl>
-                      <Input maxLength={40} {...field} />
+                      <TranslatableInput
+                        fieldName="hero_stat_years_label"
+                        baseField={field}
+                        maxLength={40}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -288,9 +452,15 @@ export default function SettingsForm({
                 name="hero_stat_projects_label"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Etiqueta proyectos</FormLabel>
+                    <FormLabel>
+                      Etiqueta proyectos {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                    </FormLabel>
                     <FormControl>
-                      <Input maxLength={40} {...field} />
+                      <TranslatableInput
+                        fieldName="hero_stat_projects_label"
+                        baseField={field}
+                        maxLength={40}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -317,9 +487,15 @@ export default function SettingsForm({
                 name="hero_stat_ops_label"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Etiqueta operativa</FormLabel>
+                    <FormLabel>
+                      Etiqueta operativa {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                    </FormLabel>
                     <FormControl>
-                      <Input maxLength={40} {...field} />
+                      <TranslatableInput
+                        fieldName="hero_stat_ops_label"
+                        baseField={field}
+                        maxLength={40}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -343,9 +519,11 @@ export default function SettingsForm({
               name="header_nav_services"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Menú: Servicios</FormLabel>
+                  <FormLabel>
+                    Menú: Servicios {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput fieldName="header_nav_services" baseField={field} maxLength={40} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -356,9 +534,11 @@ export default function SettingsForm({
               name="header_nav_cases"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Menú: Casos</FormLabel>
+                  <FormLabel>
+                    Menú: Casos {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput fieldName="header_nav_cases" baseField={field} maxLength={40} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -372,9 +552,11 @@ export default function SettingsForm({
               name="header_nav_process"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Menú: Proceso</FormLabel>
+                  <FormLabel>
+                    Menú: Proceso {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput fieldName="header_nav_process" baseField={field} maxLength={40} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -385,9 +567,11 @@ export default function SettingsForm({
               name="header_nav_contact"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Menú: Contacto</FormLabel>
+                  <FormLabel>
+                    Menú: Contacto {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput fieldName="header_nav_contact" baseField={field} maxLength={40} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -401,9 +585,11 @@ export default function SettingsForm({
               name="header_access"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Botón de acceso</FormLabel>
+                  <FormLabel>
+                    Botón de acceso {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput fieldName="header_access" baseField={field} maxLength={40} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -414,9 +600,11 @@ export default function SettingsForm({
               name="ticker_label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Texto del Ticker (CTA)</FormLabel>
+                  <FormLabel>
+                    Texto del Ticker (CTA) {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={120} {...field} />
+                    <TranslatableInput fieldName="ticker_label" baseField={field} maxLength={120} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -430,9 +618,15 @@ export default function SettingsForm({
               name="footer_directory_label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Columna Directorio</FormLabel>
+                  <FormLabel>
+                    Columna Directorio {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput
+                      fieldName="footer_directory_label"
+                      baseField={field}
+                      maxLength={40}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -443,9 +637,15 @@ export default function SettingsForm({
               name="footer_contact_label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Columna Contacto</FormLabel>
+                  <FormLabel>
+                    Columna Contacto {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                  </FormLabel>
                   <FormControl>
-                    <Input maxLength={40} {...field} />
+                    <TranslatableInput
+                      fieldName="footer_contact_label"
+                      baseField={field}
+                      maxLength={40}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -458,9 +658,11 @@ export default function SettingsForm({
             name="footer_tagline"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Eslogan del footer</FormLabel>
+                <FormLabel>
+                  Eslogan del footer {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Input maxLength={180} {...field} />
+                  <TranslatableInput fieldName="footer_tagline" baseField={field} maxLength={180} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -717,9 +919,15 @@ export default function SettingsForm({
             name="autoresponder_subject"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Asunto de la autorespuesta</FormLabel>
+                <FormLabel>
+                  Asunto de la autorespuesta {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Input maxLength={140} {...field} />
+                  <TranslatableInput
+                    fieldName="autoresponder_subject"
+                    baseField={field}
+                    maxLength={140}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -731,9 +939,16 @@ export default function SettingsForm({
             name="autoresponder_body"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cuerpo de la autorespuesta</FormLabel>
+                <FormLabel>
+                  Cuerpo de la autorespuesta {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Textarea rows={8} maxLength={2000} {...field} />
+                  <TranslatableTextarea
+                    fieldName="autoresponder_body"
+                    baseField={field}
+                    rows={8}
+                    maxLength={2000}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -754,9 +969,11 @@ export default function SettingsForm({
             name="seo_title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SEO title</FormLabel>
+                <FormLabel>
+                  SEO title {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Input maxLength={70} {...field} />
+                  <TranslatableInput fieldName="seo_title" baseField={field} maxLength={70} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -768,9 +985,16 @@ export default function SettingsForm({
             name="seo_description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meta description</FormLabel>
+                <FormLabel>
+                  Meta description {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+                </FormLabel>
                 <FormControl>
-                  <Textarea rows={4} maxLength={180} {...field} />
+                  <TranslatableTextarea
+                    fieldName="seo_description"
+                    baseField={field}
+                    rows={4}
+                    maxLength={180}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -819,10 +1043,23 @@ export default function SettingsForm({
               name="seo_og_image_url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>OG image URL</FormLabel>
+                  <FormLabel>Imagen de Open Graph</FormLabel>
                   <FormControl>
-                    <Input type="url" maxLength={200} placeholder="https://..." {...field} />
+                    <ImageField
+                      label="Imagen de Open Graph"
+                      value={field.value}
+                      initialValue={committedImages.og}
+                      target="site.og"
+                      previewAlt="Preview de la imagen Open Graph"
+                      disabled={Boolean(disabledReason)}
+                      disabledReason={disabledReason}
+                      helperText="Se usa al compartir la home en redes y mensajeria."
+                      onChange={field.onChange}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    Si la eliminas, se reutilizara el comportamiento fallback del sitio.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -849,9 +1086,11 @@ export default function SettingsForm({
           name="hero_title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Título del hero</FormLabel>
+              <FormLabel>
+                Título del hero {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+              </FormLabel>
               <FormControl>
-                <Textarea rows={3} maxLength={140} {...field} />
+                <TranslatableTextarea fieldName="hero_title" baseField={field} rows={3} maxLength={140} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -863,9 +1102,11 @@ export default function SettingsForm({
           name="hero_subtitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subtítulo del hero</FormLabel>
+              <FormLabel>
+                Subtítulo del hero {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+              </FormLabel>
               <FormControl>
-                <Textarea rows={5} maxLength={320} {...field} />
+                <TranslatableTextarea fieldName="hero_subtitle" baseField={field} rows={5} maxLength={320} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -964,20 +1205,18 @@ export default function SettingsForm({
           name="footer_text"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Texto del footer</FormLabel>
+              <FormLabel>
+                Texto del footer {!isBaseLocale && `(${activeLocale.toUpperCase()})`}
+              </FormLabel>
               <FormControl>
-                <Textarea rows={4} maxLength={240} {...field} />
+                <TranslatableTextarea fieldName="footer_text" baseField={field} rows={4} maxLength={240} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Button type="submit" disabled={isPending || Boolean(disabledReason)} title={disabledReason}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Guardar ajustes
-          </Button>
+        <div className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center">
           {feedback || disabledReason ? (
             <p className="text-sm text-zinc-400">{feedback ?? disabledReason}</p>
           ) : null}

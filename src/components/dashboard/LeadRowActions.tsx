@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { resendLeadEmails } from "@/app/dashboard/actions";
@@ -16,12 +17,14 @@ interface LeadRowActionsProps {
 export default function LeadRowActions({ lead, disabledReason }: LeadRowActionsProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleRetry() {
     startTransition(async () => {
       try {
         setFeedback(null);
         await resendLeadEmails(lead.id);
+        router.refresh();
         setFeedback("Automatizacion de email relanzada.");
       } catch (error) {
         setFeedback(

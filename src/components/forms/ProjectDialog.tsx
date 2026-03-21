@@ -2,10 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { saveProject } from "@/app/dashboard/actions";
+import ImageField from "@/components/dashboard/ImageField";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +21,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Project } from "@/lib/supabase/database.types";
 import { slugify } from "@/lib/utils";
-import { projectSchema, type ProjectValues } from "@/lib/validators/project";
+import { projectSchema, projectSlugSchema, type ProjectValues } from "@/lib/validators/project";
 
 interface ProjectDialogProps {
   project?: Project;
@@ -39,6 +42,8 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [committedImageUrl, setCommittedImageUrl] = useState(project?.image_url ?? "");
+  const router = useRouter();
 
   const form = useForm<ProjectValues>({
     resolver: zodResolver(projectSchema),
@@ -55,6 +60,8 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
       order_index: project?.order_index ?? 0,
     },
   });
+  const slugValue = useWatch({ control: form.control, name: "slug" });
+  const projectSlugReady = projectSlugSchema.safeParse(slugValue).success;
 
   function onSubmit(values: ProjectValues) {
     setFeedback(null);
@@ -62,6 +69,8 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
     startTransition(async () => {
       try {
         await saveProject(values);
+        router.refresh();
+        setCommittedImageUrl(values.image_url);
         form.reset({
           id: project?.id,
           title: project?.title ?? "",
@@ -88,6 +97,7 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
         setOpen(nextOpen);
         if (nextOpen) {
           setFeedback(null);
+          setCommittedImageUrl(project?.image_url ?? "");
         }
       }}
     >
@@ -123,11 +133,11 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
                       <Input
                         maxLength={80}
                         {...field}
-                        onBlur={(event) => {
-                          field.onBlur();
-
-                          if (!project && !form.getValues("slug").trim()) {
-                            form.setValue("slug", slugify(event.target.value), {
+                        onChange={(e) => {
+                          field.onChange(e);
+                          const currentSlug = form.getValues("slug").trim();
+                          if (!project && (!currentSlug || currentSlug === slugify(field.value))) {
+                            form.setValue("slug", slugify(e.target.value), {
                               shouldDirty: true,
                               shouldValidate: true,
                             });
@@ -171,10 +181,27 @@ export default function ProjectDialog({ project, disabledReason }: ProjectDialog
               name="image_url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                  <FormLabel>Portada del proyecto</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://..." {...field} />
+                    <ImageField
+                      label="Portada del proyecto"
+                      value={field.value}
+                      initialValue={committedImageUrl}
+                      target="project.cover"
+                      slug={slugValue?.trim()}
+                      previewAlt={`Preview de la portada de ${form.getValues("title") || "proyecto"}`}
+                      disabled={Boolean(disabledReason)}
+                      disabledReason={disabledReason}
+                      uploadDisabledReason={
+                        projectSlugReady ? undefined : "Define primero un slug valido para subir la portada."
+                      }
+                      helperText="Se muestra en las tarjetas del portfolio y en la tabla del dashboard."
+                      onChange={field.onChange}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    Sube una imagen cuando el slug ya este definido; si la eliminas, el proyecto quedara sin portada.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

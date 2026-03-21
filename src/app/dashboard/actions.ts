@@ -6,12 +6,14 @@ import { getCurrentUser, isLocalAdminSession } from "@/lib/auth";
 import {
   defaultMarketingCopy,
   marketingTranslationGroups,
+  mergeLocaleTranslations,
   pickFieldsForTranslation,
 } from "@/lib/data/marketing-copy";
 import { getGroqApiKey, hasSupabaseServiceRole } from "@/lib/env";
 import { translateFieldsWithGroq } from "@/lib/groq";
 import { type AppLocale, localeCodes } from "@/lib/i18n";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
+import { deleteManagedDashboardImages } from "@/lib/supabase/storage";
 import {
   invokeLeadEmailAutomationRecord,
   normalizeSiteSettings,
@@ -74,7 +76,25 @@ function getTargetLocales(enabledLocales: AppLocale[], defaultLocale: AppLocale)
 export async function saveSiteSettings(values: SiteSettingsValues) {
   const parsed = siteSettingsSchema.parse(values);
   const supabase = await getAuthenticatedSupabase();
-  await saveSiteSettingsRecord(supabase, parsed);
+  const { data: currentSettings } = await supabase
+    .from("site_settings")
+    .select("hero_image_url, seo_og_image_url, translations")
+    .eq("id", 1)
+    .maybeSingle();
+
+  await saveSiteSettingsRecord(supabase, {
+    ...parsed,
+    translations: mergeLocaleTranslations(
+      currentSettings?.translations,
+      parsed.translations || {},
+    ) as Record<string, Record<string, string>>,
+  });
+  await deleteManagedDashboardImages(supabase, [
+    currentSettings?.hero_image_url !== parsed.hero_image_url ? currentSettings?.hero_image_url : null,
+    currentSettings?.seo_og_image_url !== parsed.seo_og_image_url
+      ? currentSettings?.seo_og_image_url
+      : null,
+  ]);
 
   revalidateMarketingPaths();
   revalidatePath("/dashboard");
@@ -214,7 +234,14 @@ export async function toggleServiceActive(id: string, active: boolean) {
 export async function saveProject(values: ProjectValues) {
   const parsed = projectSchema.parse(values);
   const supabase = await getAuthenticatedSupabase();
+  const { data: currentProject } = parsed.id
+    ? await supabase.from("projects").select("image_url").eq("id", parsed.id).maybeSingle()
+    : { data: null };
+
   await saveProjectRecord(supabase, parsed);
+  await deleteManagedDashboardImages(supabase, [
+    currentProject?.image_url !== parsed.image_url ? currentProject?.image_url : null,
+  ]);
 
   revalidateMarketingPaths();
   revalidatePath("/dashboard");

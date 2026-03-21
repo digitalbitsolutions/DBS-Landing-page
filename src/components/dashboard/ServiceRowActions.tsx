@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { toggleServiceActive, translateServiceContent } from "@/app/dashboard/actions";
@@ -22,12 +23,14 @@ export default function ServiceRowActions({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isTogglePending, startToggleTransition] = useTransition();
   const [isTranslatePending, startTranslateTransition] = useTransition();
+  const router = useRouter();
 
   function handleToggle() {
     startToggleTransition(async () => {
       try {
         setFeedback(null);
         await toggleServiceActive(service.id, !service.active);
+        router.refresh();
         setFeedback(service.active ? "Servicio desactivado." : "Servicio activado.");
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudo actualizar el servicio.");
@@ -40,6 +43,7 @@ export default function ServiceRowActions({
       try {
         setFeedback(null);
         await translateServiceContent(service.id);
+        router.refresh();
         setFeedback("Servicio traducido correctamente.");
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "No se pudo traducir el servicio.");
