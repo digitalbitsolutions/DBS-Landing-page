@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   },
   description:
     "Landing premium y mini CMS para Digital Bit Solutions: software a medida, automatizacion e IA para equipos pequenos que buscan una ejecucion seria.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default async function RootLayout({

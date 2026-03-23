@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <clipPath id="rounded-corners">
+      <rect x="0" y="0" width="32" height="32" rx="8" ry="8"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rounded-corners)">
+    <image href="/favicon.png" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid slice"/>
+  </g>
+</svg>

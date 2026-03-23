@@ -4,7 +4,7 @@ import type { AppLocale } from "@/lib/i18n";
 import type { SiteSettings } from "@/lib/supabase/database.types";
 
 const SITE_URL = "https://digitalbitsolutions.com";
-const DEFAULT_OG_IMAGE_PATH = "/founder_photo.png";
+const DEFAULT_OG_IMAGE_PATH = "/ceo.webp";
 
 function safeAbsoluteUrl(value: string | null | undefined, fallback: string) {
   const candidate = value?.trim() || fallback;
