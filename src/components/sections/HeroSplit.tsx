@@ -20,7 +20,7 @@ interface HeroSplitProps {
 
 export default function HeroSplit({ copy, locale, settings }: HeroSplitProps) {
   const rootRef = useRef<HTMLElement | null>(null);
-  const heroImageSrc = settings.hero_image_url?.trim() || "/founder_photo.png";
+  const heroImageSrc = settings.hero_image_url?.trim() || "/ceo.webp";
 
   useEffect(() => {
     const root = rootRef.current;
