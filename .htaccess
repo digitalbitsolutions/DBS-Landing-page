@@ -1,0 +1,9 @@
+DirectoryIndex disabled
+RewriteEngine On
+
+# Avoid rewrite loops
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+# Pass all requests to port 3000 (Next.js server)
+RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+
+Options -Indexes

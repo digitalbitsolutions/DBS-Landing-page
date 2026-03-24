@@ -132,7 +132,7 @@ describe("supabase queries helpers", () => {
     });
 
     expect(settings.hero_badge).toBe("Liderazgo técnico en PHP y WordPress");
-    expect(settings.hero_image_url).toBe("/founder_photo.png");
+    expect(settings.hero_image_url).toBe("/ceo.webp");
     expect(settings.hero_panel_title).toBe("PHP, WordPress, producto web e integración moderna.");
     expect(settings.hero_stat_projects_value).toBe("12+");
     expect(settings.seo_title).toContain("Digital Bit Solutions");
