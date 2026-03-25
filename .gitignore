@@ -40,3 +40,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local deploy artifacts
+.deploy_dist/
+dist.zip
+.sftp_batch
+.tmp_deploy_key
+digitalbitsolutions-nodejs.log
+remote_public_htaccess.txt
